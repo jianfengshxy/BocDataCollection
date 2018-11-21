@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- todo async: http://logging.apache.org/log4j/2.x/manual/async.html -->
+<configuration packages="de.utils">
+    <properties>
+        <property name="BID_LOG_HOME">/tmp/log_develop_2</property>
+        <property name="DEV_LOG_HOME">/tmp/log_develop_2</property>
+        <property name="DEV_LOG__BACKUP_HOME">/tmp/log_develop_2/backup</property>
+    </properties>
+    <appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p %c - %msg%n"/>
+        </Console>
+
+        <RollingFile name="DevLog"
+                     fileName="${DEV_LOG_HOME}/de.log"
+                     filePattern="${DEV_LOG_BACKUP_HOME}/de.%d{yyyy-MM-dd.HH}-%i.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p %c - %msg%n" />
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="300 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <Routing name="BidRouting">
+            <Routes pattern="$${ctx:LocalIP}$${ctx:ProductName}$${ctx:BidLogExt}">
+                <Route>log4j2.xml:4
+                    <RollingRandomAccessFile name="bid" immediateFlush="true"
+                                 fileName="${BID_LOG_HOME}/de_log.${ctx:LocalIP}.${ctx:BidLogExt}.log"
+                                 filePattern="${BID_LOG_BACKUP_HOME}/de_log.%d{yyyy-MM-dd.HH}.${ctx:LocalIP}.%i.${ctx:BidLogExt}">
+                        <PatternLayout pattern="%msg%n" />
+                        <Policies>
+                            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                        </Policies>
+                    </RollingRandomAccessFile>
+                </Route>
+            </Routes>
+        </Routing>
+
+        <AutoCleanRouting name="logFileAppend" autoCleanDelaySecs="3600">
+            <Routes pattern="$${ctx:LocalIP}$${ctx:DayHourStr}$${ctx:BidLogExt}">
+                <Route>
+                    <File name="" fileName="${BID_LOG_HOME}/de_log.${ctx:DayHourStr}.${ctx:LocalIP}.0.${ctx:BidLogExt}">
+                        <PatternLayout pattern="%msg%n" />
+                    </File>
+                </Route>
+            </Routes>
+        </AutoCleanRouting>
+    </appenders>
+    <loggers>
+
+        <Logger name="de" level="debug" additivity="false">
+            <AppenderRef ref="DevLog" />
+        </Logger>
+
+        <Logger name="bid.log" level="info" additivity="false">
+            <AppenderRef ref="logFileAppend" />
+        </Logger>
+    </loggers>
+</configuration>
