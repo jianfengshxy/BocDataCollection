@@ -3,7 +3,7 @@ package dc.boc
 
 import java.util.Random
 import dc.boc.json.GameInfo.GameRequest
-import de.boc.BocContext
+import dc.boc.BocContext
 
 import dc.utils.{ServerInfoUtils, Config}
 import org.apache.logging.log4j.ThreadContext

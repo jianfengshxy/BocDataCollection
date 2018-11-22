@@ -1,15 +1,14 @@
-
 package dc.boc
 
-import dc.boc.NoBidLevel.NoBidLevel
+import dc.boc.BOCLevel.BOCLevel
 
-object NoBidLevel extends Enumeration {
-  type NoBidLevel = Value
+object BOCLevel extends Enumeration {
+  type BOCLevel = Value
   val Error, Warning, Info, Fatal,  Normal = Value
 }
 
 
-case class BOCException(message: String, level: NoBidLevel = NoBidLevel.Warning) extends RuntimeException(message)
+case class BOCException(message: String, level: BOCLevel = BOCLevel.Warning) extends RuntimeException(message)
 
 object BOCException {
 

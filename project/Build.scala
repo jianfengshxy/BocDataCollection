@@ -116,7 +116,7 @@ object FinagleDE extends Build {
 
   val repoSettings = Seq(
     resolvers ++= Seq(
-      "Local Public" at "http://repo.quantone.com:8080/nexus/content/repositories/public"
+
     )
   )
 
