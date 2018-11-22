@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bocdatacollection.iml" filepath="$PROJECT_DIR$/.idea/modules/bocdatacollection.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bocdatacollection-build.iml" filepath="$PROJECT_DIR$/.idea/modules/bocdatacollection-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dc.iml" filepath="$PROJECT_DIR$/.idea/modules/dc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dc-build.iml" filepath="$PROJECT_DIR$/.idea/modules/dc-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-build.iml" />
     </modules>

@@ -3,6 +3,9 @@ import sbt.Keys._
 
 import sbtassembly.Plugin._
 import AssemblyKeys._
+import com.twitter.scrooge.ScroogeSBT
+import sbtprotobuf.{ProtobufPlugin=>PB}
+import de.johoop.jacoco4sbt.JacocoPlugin._
 
 object Dependencies {
   val finagleVersion = "6.13.1"
@@ -14,6 +17,10 @@ object Dependencies {
   val finagleredis = "com.twitter" % "finagle-redis_2.10" % finagleVersion
 
   val twitterserver = "com.twitter" %% "twitter-server" % "1.6.1"
+
+  val scroogecore = "com.twitter" % "scrooge-core_2.10" % "3.13.1"
+  val thrift = "org.apache.thrift" % "libthrift" % "0.5.0"
+  val protobuf = "com.google.protobuf" % "protobuf-java" % "2.4.1"
 
   val fastjson = "com.alibaba" % "fastjson" % "1.1.15"
 
@@ -27,16 +34,18 @@ object Dependencies {
   val disruptor = "com.lmax" % "disruptor" % "3.2.0"
   val log4j12api = "org.apache.logging.log4j" % "log4j-1.2-api" % "2.0-rc1"
 
-
+  val sqlite = "org.xerial" % "sqlite-jdbc" % "3.7.2"
   val configproperties = "com.typesafe" % "config" % "1.2.1"
+  val kafkaclient = "org.apache.kafka" % "kafka_2.10" % "0.8.1.1"
 
   val ini4j = "org.ini4j" % "ini4j" % "0.5.2"
 
   val jodatime = "joda-time" % "joda-time" % "2.5"
   val jodaConvert = "org.joda" % "joda-convert" % "1.2"
 
-
+  val skydbClient = "com.allyes.skydb" % "skydb-client" % "2.3.1.2"
   val pool2 = "org.apache.commons" % "commons-pool2" % "2.3"
+  val doubleclick = "com.google.doubleclick" % "doubleclick-core" % "0.8.6"
   val protobuftojson = "com.googlecode.protobuf-java-format" % "protobuf-java-format" % "1.2"
   val jcommander = "com.beust" % "jcommander" % "1.72"
 }
@@ -46,6 +55,9 @@ object FinagleDE extends Build {
   import Dependencies._
 
   val libraryDeps = Seq(
+    scroogecore,
+    thrift,
+    protobuf,
     fastjson,
 
     slf4j,
@@ -57,36 +69,68 @@ object FinagleDE extends Build {
     scalatest,
     mockito
 
+    , sqlite
     , configproperties
+    , kafkaclient
     exclude("javax.jms", "jms")
     exclude("com.sun.jdmk", "jmxtools")
     exclude("com.sun.jmx", "jmxri")
 
+    ,skydbClient
+      exclude("org.apache.thrift", "libfb303")
     ,pool2
     ,ini4j
     ,jodatime
     ,jodaConvert
+    ,doubleclick
+    ,protobuftojson
     ,jcommander
   )
 
   val twitterSrvr = Seq(
     twitterserver,
+ //   finagleredis,
     finalgeserversets
       exclude("org.slf4j", "slf4j-jdk14"),
     finaglestats
   )
 
-     val buildSettings = Project.defaultSettings
+  val pluginSettings = Seq(
+    ScroogeSBT.newSettings ++ Seq(
+      ScroogeSBT.scroogeBuildOptions := Seq("--finagle")
+    ),
+    PB.protobufSettings,
+    assemblySettings ++ Seq(
+      mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+      {
+        case "com/twitter/common/args/apt/cmdline.arg.info.txt.1" => MergeStrategy.first
+        case PathList("org", "slf4j", xs @ _*) => MergeStrategy.first
+        case PathList(ps @ _*) if ps.last endsWith "Log4j2Plugins.dat" => MergeStrategy.first
+        case "log4j2.xml" => MergeStrategy.first
+        case x => old(x)
+      }}
+    ),
+    net.virtualvoid.sbt.graph.Plugin.graphSettings,
+    jacoco.settings
+  ).flatten
+
+  val repoSettings = Seq(
+    resolvers ++= Seq(
+      "Local Public" at "http://repo.quantone.com:8080/nexus/content/repositories/public"
+    )
+  )
+
+  val buildSettings = Project.defaultSettings ++ pluginSettings ++ repoSettings
 
   lazy val root = Project(
     id = "root",
     base = file("."))
-    .aggregate(bocdatacollection)
+    .aggregate(dc)
 
 
-  lazy val bocdatacollection = Project(
-    id = "bocdatacollection",
-    base = file("bocdatacollection"),
+  lazy val dc = Project(
+    id = "dc",
+    base = file("dc"),
     settings = buildSettings
   ) settings (
     libraryDependencies ++= libraryDeps ++ twitterSrvr,
