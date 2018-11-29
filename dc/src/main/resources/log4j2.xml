@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- todo async: http://logging.apache.org/log4j/2.x/manual/async.html -->
-<configuration packages="de.utils">
+<configuration packages="dc.utils">
     <properties>
         <property name="BID_LOG_HOME">/tmp/log_develop_2</property>
         <property name="DEV_LOG_HOME">/tmp/log_develop_2</property>
@@ -49,7 +49,7 @@
     </appenders>
     <loggers>
 
-        <Logger name="de" level="debug" additivity="false">
+        <Logger name="dc" level="debug" additivity="false">
             <AppenderRef ref="DevLog" />
         </Logger>
 
